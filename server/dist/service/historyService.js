@@ -35,8 +35,8 @@ class HistoryService {
     }
     ;
     // TODO Define an addCity method that adds a city to the searchHistory.json file
-    async addCity(city, id) {
-        if (!city || !id) {
+    async addCity(city) {
+        if (!city) {
             throw new Error('Please fill in a valid city or ID');
         }
         //add a unique ID to each city 
