@@ -32,7 +32,7 @@ class HistoryService {
   // TODO: Define a getCities method that reads the cities from the searchHistory.json file and returns them as an array of City objects
   async getCities() {
     return await this.read().then((cities) => {
-      let parsedGetCities : City[];
+      let parsedGetCities: City[];
 
       try {
         parsedGetCities = [].concat(JSON.parse(cities));
@@ -45,32 +45,32 @@ class HistoryService {
   };
 
   // TODO Define an addCity method that adds a city to the searchHistory.json file
-   async addCity(city: string, id: string) {
-    if (!city || !id) {
+  async addCity(city: string) {
+    if (!city) {
       throw new Error('Please fill in a valid city or ID');
     }
 
     //add a unique ID to each city 
-    const newCity: City = {name: city, id: uuidv4() }
+    const newCity: City = { name: city, id: uuidv4() }
 
     return await this.getCities()
-    .then((cities) => {
-      if(cities.find((index) => index.name === city)) {
-        return cities;
-      }  
-      return [...cities, newCity];
-    })
-    .then((updatedCities) => this.write(updatedCities))
-    .then(()=> newCity);
+      .then((cities) => {
+        if (cities.find((index) => index.name === city)) {
+          return cities;
+        }
+        return [...cities, newCity];
+      })
+      .then((updatedCities) => this.write(updatedCities))
+      .then(() => newCity);
 
-   }
+  }
   // * BONUS TODO: Define a removeCity method that removes a city from the searchHistory.json file
-   async removeCity(id: string) {
+  async removeCity(id: string) {
     return await this.getCities()
-    .then((cities) => cities.filter((city)=> city.id !== id ))
-    .then((filteredCities) => this.write(filteredCities));
+      .then((cities) => cities.filter((city) => city.id !== id))
+      .then((filteredCities) => this.write(filteredCities));
 
-   }
+  }
 }
 
 export default new HistoryService();

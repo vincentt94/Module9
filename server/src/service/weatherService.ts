@@ -1,4 +1,4 @@
- import { type Dayjs } from 'dayjs';
+import { type Dayjs } from 'dayjs';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -41,12 +41,12 @@ class Weather {
 
 // TODO: Complete the WeatherService class
 class WeatherService {
-  
+
   private baseURL?: string;
 
   private apiKey?: string;
 
-   city = '';
+  city = '';
 
   constructor() {
     this.baseURL = process.env.API_BASE_URL || '';
@@ -55,24 +55,24 @@ class WeatherService {
 
   }
   // TODO: method to fetch weather based on city 
-  async getWeatherByCity (city: string) {
-    this.city = city; 
+  async getWeatherByCity(city: string) {
+    this.city = city;
     try {
-      const geoResponse = await fetch ( `${this.baseURL}/geo/1.0/direct?q=${city}&limit=5&appid=${this.apiKey}`
-      ); 
+      const geoResponse = await fetch(`${this.baseURL}/geo/1.0/direct?q=${city}&limit=1&appid=${this.apiKey}`
+      );
 
-        const geoLocationData = await geoResponse.json();
-         // console.log(geoLocationData);
-        let parsedCoordinates = geoLocationData[0]
-        let coordinates: Coordinates = {
-          name: parsedCoordinates.name,
-          lat: parsedCoordinates.lat,
-          lon: parsedCoordinates.lon,
-          country: parsedCoordinates.country,
-          state: parsedCoordinates.state
-          
-        }
-        return await this.getWeatherForcast(coordinates);
+      const geoLocationData = await geoResponse.json();
+      // console.log(geoLocationData);
+      let parsedCoordinates = geoLocationData[0]
+      let coordinates: Coordinates = {
+        name: parsedCoordinates.name,
+        lat: parsedCoordinates.lat,
+        lon: parsedCoordinates.lon,
+        country: parsedCoordinates.country,
+        state: parsedCoordinates.state
+
+      }
+      return await this.getWeatherForcast(coordinates);
     }
     catch (error) {
       console.error("Failed to fetch weather data:", error);
@@ -81,93 +81,40 @@ class WeatherService {
 
   }
   // TODO: method to fetch 5 day forecast based on lon and lat 
- private async getWeatherForcast (coord: Coordinates) {
-    const url = `${this.baseURL}/data/2.5/forecast?lat=${coord.lat}&lon=${coord.lon}&appid=${this.apiKey}`;
+  private async getWeatherForcast(coord: Coordinates) {
+    const url = `${this.baseURL}/data/2.5/forecast?lat=${coord.lat}&lon=${coord.lon}&units=imperial&appid=${this.apiKey}`;
     try {
-      
       const response = await fetch(url);
-      if(!response.ok) {
+      if (!response.ok) {
         throw new Error(`HTTP Error.  Status: ${response.status}`)
       }
+      //empty array to store weather data 
+      const dataVar = [];
+
       const data = await response.json();
-      console.log(data);
-      return data;
+      // shows 5 days of forcast 
+      // iterrates over the 40 objects and grabs every 7th entry which DOES grab a 5 day forcast but at various times
+
+      for (let i = 0; i < data.list.length; i += 7) {
+        // console.log(data.list[i])
+        const newForcast = new Weather(
+          this.city,
+          data.list[i].dt_txt,
+          data.list[i].main.temp,
+          data.list[i].wind.speed,
+          data.list[i].main.humidity,
+          data.list[i].weather[0].icon,
+          data.list[i].weather[0].description
+        )
+        dataVar.push(newForcast);
+      }
+      return dataVar;
     } catch (error) {
       console.error('Error fetching weather data:', error);
+      throw error;
     }
 
   }
-
-   
-  
-
-  // TODO: method to build and return your array of weather objects
-  async getWeatherObjects (weather: Weather[]) {
-    const weatherArray: Weather[] = weather.map((weather) => {
-      const weatherObject: Weather = {
-        city: weather.city,
-        date: weather.date,
-        tempF: weather.tempF,
-        windSpeed: weather.windSpeed,
-        humidity: weather.humidity,
-        icon: weather.icon,
-        iconDescription: weather.iconDescription,
-      };
-      // return await this.getCurrentWeather.
-       return weatherObject;
-  });
-/*
-//use filter method to possibly find current weather 
-  async getCurrentWeather (weather: Weather[]) {
-    const currentWeather: Weather[] = weather.filter((weatherObject) => {
-      const currentWeatherObject: Weather = {
-
-      }
-    })
-  }
-  */
-  return weatherArray;
-  }
 }
 
 export default new WeatherService();
-
-
-
-
-
-
-/* Code below is downloaded and starter code
-import dotenv from 'dotenv';
-dotenv.config();
-
-// TODO: Define an interface for the Coordinates object
-
-// TODO: Define a class for the Weather object
-
-// TODO: Complete the WeatherService class
-class WeatherService {
-  // TODO: Define the baseURL, API key, and city name properties
-  // TODO: Create fetchLocationData method
-  // private async fetchLocationData(query: string) {}
-  // TODO: Create destructureLocationData method
-  // private destructureLocationData(locationData: Coordinates): Coordinates {}
-  // TODO: Create buildGeocodeQuery method
-  // private buildGeocodeQuery(): string {}
-  // TODO: Create buildWeatherQuery method
-  // private buildWeatherQuery(coordinates: Coordinates): string {}
-  // TODO: Create fetchAndDestructureLocationData method
-  // private async fetchAndDestructureLocationData() {}
-  // TODO: Create fetchWeatherData method
-  // private async fetchWeatherData(coordinates: Coordinates) {}
-  // TODO: Build parseCurrentWeather method
-  // private parseCurrentWeather(response: any) {}
-  // TODO: Complete buildForecastArray method
-  // private buildForecastArray(currentWeather: Weather, weatherData: any[]) {}
-  // TODO: Complete getWeatherForCity method
-  // async getWeatherForCity(city: string) {}
-}
-
-export default new WeatherService();
- 
-*/
